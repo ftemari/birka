@@ -4,40 +4,54 @@ import { Label } from '@/components/ui/label';
 import React from 'react';
 import MercadoPagoConfig, { Preference } from 'mercadopago';
 import { redirect } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
 
 
 
-const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! });
+const mercadopago = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! });
+const supabase = createClient(
+  process.env.NEXT_SUPABASE_URL!,
+  process.env.NEXT_SECRET_SUPABASE_KEY!
+);
+
 
 export default function Menu() {
 
     async function pay(formData: FormData) {
         'use server'
-        const preference = await new Preference(client).create({
+        const order = {
+            id: crypto.randomUUID(),
+            amount: Number(formData.get('amount')),
+            message: formData.get('text') as string
+        }
+
+        const result = await supabase
+        .from('orders')
+        .insert({ id: order.id, amount: order.amount, message: order.message, state: 'CREATED' })
+      
+        console.log(result)
+        // TODO falta agregar que si no se pudo guardar la orden correctamente en la db tire error y no lo mando a meli
+
+        const preference = await new Preference(mercadopago).create({
             body: {
                 items: [
                   {
                     id: "payment",
-                    title: formData.get('text') as string,
+                    title: order.message,
                     quantity: 1,
-                    unit_price: Number(formData.get('amount'))
+                    unit_price: order.amount
                   }
                 ],
+                external_reference: order.id,
+                back_urls: {
+                    success: "localhost:3000/confirmation",
+                    pending: "www.google.com",
+                    failure: "www.google.com"
+                }
               }
         })
         redirect(preference.sandbox_init_point!)
 
-        // // Convert FormData to an object
-        // const formDataObject = Object.fromEntries(formData.entries());
-        // console.log('Form Data:', formDataObject);
-
-        // // Access specific form fields
-        // const name = formData.get('text');
-        // const amount = formData.get('amount');
-        // console.log('Name:', name);
-        // console.log('Amount:', amount);
-
-        // console.log('MercadoPago integration would go here');
     }
 
     return (
