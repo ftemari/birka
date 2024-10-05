@@ -44,14 +44,17 @@ export default function Menu() {
                 ],
                 external_reference: order.id,
                 back_urls: {
-                    success: "localhost:3000/confirmation",
+                    success: "birka-nu.vercel.app/confirmation",
                     pending: "www.google.com",
                     failure: "www.google.com"
                 }
               }
         })
-        redirect(preference.sandbox_init_point!)
-
+        if (preference.init_point) {
+            window.location.href = preference.init_point;
+        } else {
+            console.error("No se pudo obtener el punto de inicio de la preferencia.");
+        }
     }
 
     return (
