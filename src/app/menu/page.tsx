@@ -51,7 +51,7 @@ export default function Menu() {
               }
         })
         if (preference.init_point) {
-            window.location.href = preference.init_point;
+            redirect(preference.init_point)
         } else {
             console.error("No se pudo obtener el punto de inicio de la preferencia.");
         }
