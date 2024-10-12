@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { CartProvider } from '@/contexts/CartContext'; // Importa el CartProvider
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <CartProvider> {/* Envuelve los hijos con CartProvider */}
+          {children}
+        </CartProvider>
       </body>
     </html>
   );
