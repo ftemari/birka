@@ -90,7 +90,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     const pagar = async () => {
         // Aquí puedes agregar más lógica si es necesario
-        await realizarPago();
+        // TODO: Falta agregar la logica que guarda la información en supabase, también agregar el ID del pago y eso
+        if (cart.length != 0){
+            await realizarPago(totalPrice);
+        } else {
+            // TODO: debo agregar una manera correcta de mostrar errores o que no te deje darle click al boton de pagar si el cart length es cero
+            console.log("No se puede pagar cero")
+        }
+        // redirect(redirectstring)
     };
 
 

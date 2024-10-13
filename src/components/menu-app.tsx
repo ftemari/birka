@@ -87,7 +87,7 @@ export const MenuApp: React.FC = () => {
                       <p className="font-bold text-lg">Total: ${totalPrice.toFixed(2)}</p>
                     </div>
                     <div className="p-4">
-                      <Button className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-2">
+                      <Button onClick={pagar} className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-2">
                         Pagar
                       </Button>
                     </div>
