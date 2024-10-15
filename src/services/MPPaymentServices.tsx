@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 
 
-export async function realizarPago(totalPrice: number): Promise<void> {
+export async function realizarPago(totalPrice: number, id: string): Promise<void> {
     const mercadopago = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! });
     console.log(totalPrice)
     
@@ -19,32 +19,19 @@ export async function realizarPago(totalPrice: number): Promise<void> {
                     unit_price: totalPrice
                 }
             ],
-            external_reference: "order.id",
+            external_reference: id,
             back_urls: {
-                success: "birka-nu.vercel.app/confirmation",
-                pending: "www.google.com",
-                failure: "www.google.com"
+                success: process.env.BIRKA_URL! + "/confirmation",
+                pending: process.env.BIRKA_URL! + "/confirmation",
+                failure: process.env.BIRKA_URL! + "/confirmation"
             }
         }
     })
     if (preference.init_point) {
         redirect(preference.init_point)
-        console.log(preference.init_point)
-        // return preference.init_point!
-
     } else {
         console.log(preference.sandbox_init_point!)
         console.error("No se pudo obtener el punto de inicio de la preferencia.");
-        // return preference.sandbox_init_point!
     }
-    // } catch (error) {
-    //     console.error("Error al crear la preferencia de pago:", error);
-    // }
-    // return "www.google.com"
-
-    // Aquí es donde manejas la lógica de pago.
-    // Por ejemplo, puedes hacer una llamada al SDK de pago y luego guardar la información en la base de datos.
-
-    // sdkPago.redirigirAPaginaDePago();
-    // await db.guardarInformacionDePago();
+    
 }

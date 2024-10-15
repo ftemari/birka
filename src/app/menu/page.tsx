@@ -24,7 +24,7 @@ export default function Menu() {
             amount: Number(formData.get('amount')),
             message: formData.get('text') as string
         }
-
+        
         const result = await supabase
         .from('orders')
         .insert({ id: order.id, amount: order.amount, message: order.message, state: 'CREATED' })

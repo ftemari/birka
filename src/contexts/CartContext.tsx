@@ -1,6 +1,7 @@
 "use client";
 
 import { realizarPago } from '@/services/MPPaymentServices';
+import { CreateOrder } from '@/services/supabaseService';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface MenuItem {
@@ -87,12 +88,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0)
     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-
+    
     const pagar = async () => {
+
+
         // Aquí puedes agregar más lógica si es necesario
         // TODO: Falta agregar la logica que guarda la información en supabase, también agregar el ID del pago y eso
         if (cart.length != 0){
-            await realizarPago(totalPrice);
+            const id = await CreateOrder(totalPrice)
+            await realizarPago(totalPrice, id);
         } else {
             // TODO: debo agregar una manera correcta de mostrar errores o que no te deje darle click al boton de pagar si el cart length es cero
             console.log("No se puede pagar cero")
