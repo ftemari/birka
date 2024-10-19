@@ -1,11 +1,11 @@
 "use client";
 
 import { realizarPago } from '@/services/MPPaymentServices';
-import { CreateOrder } from '@/services/supabaseService';
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { CreateOrder, getAllProducts } from '@/services/supabaseService';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface MenuItem {
-    id: number;
+    id: string;
     name: string;
     description: string;
     price: number;
@@ -16,26 +16,14 @@ interface CartItem extends MenuItem {
     quantity: number;
 }
 
-const menuItems: MenuItem[] = [
-    { id: 1, name: "Classic Burger", description: "Juicy beef patty with lettuce, tomato, and cheese", price: 9.99, category: "Burgers" },
-    { id: 2, name: "Veggie Pizza", description: "Assorted vegetables on a crispy crust", price: 11.99, category: "Pizza" },
-    { id: 3, name: "Caesar Salad", description: "Crisp romaine lettuce with Caesar dressing and croutons", price: 7.99, category: "Salads" },
-    { id: 4, name: "Grilled Chicken Sandwich", description: "Tender grilled chicken breast with avocado and bacon", price: 10.99, category: "Sandwiches" },
-    { id: 5, name: "Spaghetti Bolognese", description: "Al dente spaghetti with rich meat sauce", price: 12.99, category: "Pasta" },
-    { id: 6, name: "Margherita Pizza", description: "Classic pizza with tomato, mozzarella, and basil", price: 10.99, category: "Pizza" },
-    { id: 7, name: "Greek Salad", description: "Fresh vegetables, feta cheese, and olives", price: 8.99, category: "Salads" },
-    { id: 8, name: "Cheeseburger", description: "Beef patty with melted cheese and pickles", price: 8.99, category: "Burgers" },
-    { id: 9, name: "Chicken Wings", description: "Crispy wings with your choice of sauce", price: 10.99, category: "Appetizers" },
-    { id: 10, name: "Fish and Chips", description: "Crispy battered fish with golden fries", price: 13.99, category: "Seafood" },
-]
 
 interface CartContextType {
     cart: CartItem[];
     menuItems: MenuItem[];
     totalItems: number;
     totalPrice: number;
-    quantities: { [key: number]: number };
-    updateQuantity: (id: number, delta: number) => void;
+    quantities: { [key: string]: number };
+    updateQuantity: (id: string, delta: number) => void;
     addToCart: (item: MenuItem) => void;
     pagar: () => Promise<void>;
 }
@@ -49,10 +37,27 @@ interface CartProviderProps {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     const [cart, setCart] = useState<CartItem[]>([]);
 
-    const [quantities, setQuantities] = useState<{ [key: number]: number }>(
+    const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+    const [quantities, setQuantities] = useState<{ [key: string]: number }>(
         Object.fromEntries(menuItems.map(item => [item.id, 1]))
     )
 
+    // Cargar los productos al iniciar el contexto
+    useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                const products = await getAllProducts(); // Llamar a getAllProducts
+                setMenuItems(products);
+                // Inicializar cantidades con 1 para cada producto
+                const initialQuantities = Object.fromEntries(products.map(item => [item.id, 1]));
+                setQuantities(initialQuantities);
+            } catch (error) {
+                console.error("Error al cargar los productos:", error);
+            }
+        };
+
+        loadProducts();
+    }, []);
 
     const addToCart = (item: MenuItem) => {
         const quantity = quantities[item.id]
@@ -78,7 +83,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         }))
     }
 
-    const updateQuantity = (id: number, delta: number) => {
+    const updateQuantity = (id: string, delta: number) => {
         setQuantities(prev => ({
             ...prev,
             [id]: Math.max(1, prev[id] + delta)
@@ -95,7 +100,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         // Aquí puedes agregar más lógica si es necesario
         // TODO: Falta agregar la logica que guarda la información en supabase, también agregar el ID del pago y eso
         if (cart.length != 0){
-            const id = await CreateOrder(totalPrice)
+            const id = await CreateOrder(cart, totalPrice)
             await realizarPago(totalPrice, id);
         } else {
             // TODO: debo agregar una manera correcta de mostrar errores o que no te deje darle click al boton de pagar si el cart length es cero
