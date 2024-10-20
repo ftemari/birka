@@ -8,7 +8,7 @@ type PageProps = {
 
 export default function Confirmation({ searchParams }: PageProps) {
 
-    const order_id = searchParams.external_id as string;
+    const order_id = searchParams.external_reference as string;
     return (
         <div>
             <OrderConfirmationComponent order_id={order_id}></OrderConfirmationComponent>
