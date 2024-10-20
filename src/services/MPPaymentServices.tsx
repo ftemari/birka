@@ -24,7 +24,8 @@ export async function realizarPago(totalPrice: number, id: string): Promise<void
                 success: process.env.BIRKA_URL! + "/confirmation",
                 pending: process.env.BIRKA_URL! + "/confirmation",
                 failure: process.env.BIRKA_URL! + "/confirmation"
-            }
+            },
+            auto_return: "all"
         }
     })
     if (preference.init_point) {
