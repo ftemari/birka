@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, CheckCircle, Clock, DollarSign, QrCode, User } from "lucide-react"
+import { ArrowLeft, CheckCircle, Clock, DollarSign, QrCode } from "lucide-react"
 import Link from "next/link"
 import QRCode from "react-qr-code"
 import { getOrderById } from '@/services/supabaseService'
